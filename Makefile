@@ -17,14 +17,14 @@ BUILD_DIR = out
 GENERATOR_TYPE = Ninja
 
 # Cmake Linker Variables
-LINKER_EXECUTABLE_PATH = /usr/bin/ld
+LINKER_EXECUTABLE_PATH = /usr/bin/ld.lld
 LINKER_SCRIPT = $(CURRENT_DIR)/arch/$(ARCH)/linker.ld
 LINKER_FLAGS = -m elf_i386 -z noexecstack -n
 
 # CMake ASM Variables
-ASM_SRCS = $(CURRENT_DIR)/arch/$(ARCH)/multiboot.asm
+ASM_SRCS = $(CURRENT_DIR)/arch/$(ARCH)/multiboot.asm $(CURRENT_DIR)/arch/$(ARCH)/boot.asm
 ASM_OBJECT_TYPE = elf32
-ASM_FLAGS = -f elf32
+ASM_FLAGS = -f elf32 -noexecstack
 
 # CMake C Variables
 CFLAGS =
@@ -40,7 +40,7 @@ all: $(NAME)
 
 re: fclean all
 
-$(BUILD_DIR): CMakeLists.txt build.rs $(RUST_SRCS) $(C_SRCS) $(ASM_SRCS) $(LINKER_SCRIPT)
+$(BUILD_DIR): CMakeLists.txt build.rs $(RUST_SRCS) $(C_SRCS) $(INCLUDES) $(ASM_SRCS) $(LINKER_SCRIPT)
 	@MAKE_NAME="$(NAME)" MAKE_LINKER_SCRIPT="$(LINKER_SCRIPT)" MAKE_LINKER_FLAGS="$(LINKER_FLAGS)" \
 	MAKE_ASM_FLAGS="$(ASM_FLAGS)" MAKE_ASM_SRCS="$(ASM_SRCS)" MAKE_RUST_TARGET="$(RUST_TARGET)" \
 	MAKE_ASM_OBJECT_TYPE="$(ASM_OBJECT_TYPE)" MAKE_LINKER_EXECUTABLE_PATH="$(LINKER_EXECUTABLE_PATH)" \

@@ -16,9 +16,10 @@ BUILDING:
 ninja-build
 cmake
 make
-ld
-gcc OR clang
+lld
+gcc OR clang (tested with clang)
 rustup
 cargo
 nasm
+cbindgen (cargo install)
 ```
