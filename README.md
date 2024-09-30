@@ -3,6 +3,10 @@
 ### Resources
 1. https://os.phil-opp.com/
 2. https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html
+3. https://github.com/dreamportdev/Osdev-Notes/
+4. https://wiki.osdev.org/PCI
+5. https://wiki.osdev.org/PCI_Express
+6. https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Boot-information-format
 
 ### Required Tools
 ```
@@ -21,5 +25,4 @@ gcc OR clang (tested with clang)
 rustup
 cargo
 nasm
-cbindgen (cargo install)
 ```

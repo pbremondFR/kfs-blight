@@ -29,7 +29,7 @@ ASM_FLAGS = -f elf32 -noexecstack
 # CMake C Variables
 CFLAGS =
 C_SRCS =
-INCLUDES =
+INCLUDES = includes/42_logo.h
 
 # CMake Rust Variables
 RUST_TARGET = $(CURRENT_DIR)/$(ARCH)-kfs.json
@@ -56,6 +56,7 @@ $(NAME): $(BUILD_DIR)/$(NAME)
 run-iso: $(NAME).iso
 	@qemu-system-$(ARCH) -cdrom $(NAME).iso
 
+# Bugged
 run: $(NAME)
 	@qemu-system-$(ARCH) -kernel $(NAME) -machine type=pc-i440fx-3.1
 

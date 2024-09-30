@@ -6,8 +6,12 @@ global start
 extern kmain
 
 start:
-  mov esp, stack + STACK_SIZE
-  call kmain
+  mov   esp, stack + STACK_SIZE ; create Stack
+  push  0                       ; Reset Error Flags
+  popf
+  push  ebx                     ; Push Magic Multiboot Number
+  push  eax                     ; Push Multiboot Structure Pointer
+  call  kmain                   ; Call kmain (leaving asm for rust)
 
 section .bss
 stack:

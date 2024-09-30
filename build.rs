@@ -3,7 +3,8 @@
 
 fn main() {
     // let bindings = bindgen::Builder::default()
-    //     .header("./includes/rust_bindings.h")
+    //     .header("./includes/42_logo.h")
+    //     .use_core()
     //     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
     //     .generate()
     //     .expect("Unable to generate");
