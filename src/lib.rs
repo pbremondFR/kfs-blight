@@ -33,7 +33,7 @@ pub extern "C" fn kmain(mb_magic: u32, mbi_ptr: u32) -> ! {
 
         for y in 0..framebuffer_height {
             for x in 0..framebuffer_width {
-                let color = (min(x / (framebuffer_width/256),255) << 16) + (min(y/ (framebuffer_height/256),255) << 8) + 0;
+                let color = (min(x / (framebuffer_width/256),255) << 16) + (min(y/ (framebuffer_height/256),255) << 8) + 255;
                 put_pixel(&framebuffer_tag, x, y, color);
             }
         }
