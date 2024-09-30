@@ -7,6 +7,8 @@
 4. https://wiki.osdev.org/PCI
 5. https://wiki.osdev.org/PCI_Express
 6. https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Boot-information-format
+7. https://wiki.osdev.org/Drawing_In_a_Linear_Framebuffer
+8. https://docs.rust-embedded.org/embedonomicon/custom-target.html
 
 ### Required Tools
 ```
