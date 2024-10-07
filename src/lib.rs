@@ -1,14 +1,13 @@
 #![no_std]
 #![no_main]
+#![allow(non_upper_case_globals)]
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 
-use core::cmp::min;
 use core::panic::PanicInfo;
 use multiboot2::{BootInformation, BootInformationHeader, FramebufferTag};
 
-// #[allow(non_upper_case_globals)]
-// #[allow(non_camel_case_types)]
-// #[allow(non_snake_case)]
-// include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -28,17 +27,18 @@ pub extern "C" fn kmain(mb_magic: u32, mbi_ptr: u32) -> ! {
         let boot_info =
             unsafe { BootInformation::load(mbi_ptr as *const BootInformationHeader).unwrap() };
         let framebuffer_tag = boot_info.framebuffer_tag().unwrap().unwrap();
-        let framebuffer_width = framebuffer_tag.width();
-        let framebuffer_height = framebuffer_tag.height();
 
-        for y in 0..framebuffer_height {
-            for x in 0..framebuffer_width {
-                let color = (min(x / (framebuffer_width/256),255) << 16) + (min(y/ (framebuffer_height/256),255) << 8) + 255;
+        for y in 0..height {
+            for x in 0..width {
+                let pixel = unsafe { get_next_pixel_42() };
+                let color = ((pixel.r << 16) + (pixel.g << 8) + pixel.b) as u32;
                 put_pixel(&framebuffer_tag, x, y, color);
             }
         }
 
-        loop {}
+        loop {
+
+        }
     } else {
         panic!("Multiboot2 not supported!")
     }

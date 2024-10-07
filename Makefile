@@ -27,9 +27,10 @@ ASM_OBJECT_TYPE = elf32
 ASM_FLAGS = -f elf32 -noexecstack
 
 # CMake C Variables
-CFLAGS =
-C_SRCS =
-INCLUDES = includes/42_logo.h
+C_LIB_NAME = bridge
+C_FLAGS = -ffreestanding -O2 -Wall -Wextra -nostdlib -lgcc -m32
+C_SRCS = c_src/42_logo.c
+INCLUDES = includes
 
 # CMake Rust Variables
 RUST_TARGET = $(CURRENT_DIR)/$(ARCH)-kfs.json
@@ -44,7 +45,7 @@ $(BUILD_DIR): CMakeLists.txt build.rs $(RUST_SRCS) $(C_SRCS) $(INCLUDES) $(ASM_S
 	@MAKE_NAME="$(NAME)" MAKE_LINKER_SCRIPT="$(LINKER_SCRIPT)" MAKE_LINKER_FLAGS="$(LINKER_FLAGS)" \
 	MAKE_ASM_FLAGS="$(ASM_FLAGS)" MAKE_ASM_SRCS="$(ASM_SRCS)" MAKE_RUST_TARGET="$(RUST_TARGET)" \
 	MAKE_ASM_OBJECT_TYPE="$(ASM_OBJECT_TYPE)" MAKE_LINKER_EXECUTABLE_PATH="$(LINKER_EXECUTABLE_PATH)" \
-	MAKE_C_SRCS="$(C_SRCS)" MAKE_CFLAGS="$(CFLAGS)" MAKE_INCLUDES="$(INCLUDES)" \
+	MAKE_C_SRCS="$(C_SRCS)" MAKE_CFLAGS="$(C_FLAGS)" MAKE_INCLUDES="$(INCLUDES)" MAKE_C_LIB_NAME="$(C_LIB_NAME)" \
 	cmake -G "$(GENERATOR_TYPE)" -DCMAKE_BUILD_TYPE=$(RELEASE_TYPE) -S . -B $(BUILD_DIR)
 
 $(BUILD_DIR)/$(NAME): $(BUILD_DIR)
@@ -70,7 +71,6 @@ fclean:
 	@rm -rf $(NAME).iso
 	@rm -rf $(GRUB_SRC)/boot/$(NAME)
 	@rm -rf $(BUILD_DIR)
-	@cargo clean
 
 clean:
 	@cmake --build $(BUILD_DIR) -- clean

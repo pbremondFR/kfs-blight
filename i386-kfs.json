@@ -10,5 +10,5 @@
   "linker-flavor": "gcc",
   "panic-strategy": "abort",
   "disable-redzone": true,
-  "features": "-mmx,-sse,+soft-float"
+  "features": "-mmx,-sse"
 }
