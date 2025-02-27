@@ -14,15 +14,52 @@ macro_rules! VGA_BUFFER_SIZE {
     () => {VGA_WIDTH!() * 2 * VGA_HIGHT!()}
 }
 
+macro_rules! pr_debug {
+    ($dst:expr, $($arg:tt)*) => {
+        $dst.set_color(0x7);
+        write!($dst, $($arg)*).expect("Write failed");
+    };
+}
+
+macro_rules! pr_info {
+    ($dst:expr, $($arg:tt)*) => {
+        $dst.set_color(0xb);
+        write!($dst, $($arg)*).expect("Write failed");
+        $dst.set_color(0);
+    }
+}
+
+macro_rules! pr_warn {
+    ($dst:expr, $($arg:tt)*) => {
+        $dst.set_color(0xc);
+        write!($dst, $($arg)*).expect("Write failed");
+        $dst.set_color(0);
+    }
+}
+
+macro_rules! pr_error {
+    ($dst:expr, $($arg:tt)*) => {
+        $dst.set_color(0x4);
+        write!($dst, $($arg)*).expect("Write failed");
+        $dst.set_color(0);
+    }
+}
+
+
 pub struct Screen {
     buf: [u8; VGA_BUFFER_SIZE!()],
     line: usize,
     pos: usize,
+    color: u8,
 }
 
 impl Screen {
     pub fn new() -> Self {
-        Screen { buf: [0; VGA_BUFFER_SIZE!()], line: 0, pos: 0 }
+        Screen { buf: [0; VGA_BUFFER_SIZE!()], line: 0, pos: 0, color: 0x0 }
+    }
+
+    pub fn set_color(&mut self, color: u8) {
+        self.color = color;
     }
 
     pub fn scroll_up(&mut self) {
@@ -39,8 +76,8 @@ impl Screen {
                 }
             }
             for i in 0..VGA_WIDTH!() {
-                self.buf[(i + 24 * VGA_WIDTH!()) * 2 ] = 0x0;
-                self.buf[(i + 24 * VGA_WIDTH!()) * 2 + 1] = 0x0;
+                self.buf[(i + 24 * VGA_WIDTH!()) * 2 ] = 0;
+                self.buf[(i + 24 * VGA_WIDTH!()) * 2 + 1] = 0;
             }
         }
     }
@@ -63,7 +100,7 @@ impl Write for Screen {
                 continue;
             } 
             self.buf[(self.pos + self.line * VGA_WIDTH!()) * 2 ] = byte;
-            self.buf[(self.pos + self.line * VGA_WIDTH!()) * 2 + 1] = 0xb;
+            self.buf[(self.pos + self.line * VGA_WIDTH!()) * 2 + 1] = self.color;
             self.pos += 1;
         }
 

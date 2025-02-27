@@ -18,8 +18,11 @@ fn panic(_info: &PanicInfo) -> ! {
 pub extern "C" fn kmain() -> ! {
     let mut screen = Screen::new();
 
-    for i in 0..26 {
-        write!(screen, "Hello, {}!\n", i).expect("Write failed");
+    for i in 0..4 {
+        pr_debug!(screen, "DEBUG MESSAGE {}!\n", i);
+        pr_info!(screen, "INFO MESSAGE {}!\n", i);
+        pr_warn!(screen, "WARN MESSAGE {}!\n", i);
+        pr_error!(screen, "ERROR MESSAGE {}!\n", i);
     }
 
     loop {}

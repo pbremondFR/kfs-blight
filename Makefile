@@ -11,7 +11,7 @@ GRUB_SRC = iso
 
 # Basic
 NAME = kfs.elf
-RELEASE_TYPE = Debug
+RELEASE_TYPE = Release
 CURRENT_DIR = ${CURDIR}
 BUILD_DIR = out
 GENERATOR_TYPE = Ninja
