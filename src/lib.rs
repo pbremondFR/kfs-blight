@@ -2,23 +2,24 @@
 #![no_main]
 
 use core::panic::PanicInfo;
+use core::fmt::Write;
+
+#[macro_use]
+mod screen;
+
+use screen::Screen;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 
-static HELLO: &[u8] = b"42";
-
 #[no_mangle]
 pub extern "C" fn kmain() -> ! {
-    let vga_buffer = 0xb8000 as *mut u8;
+    let mut screen = Screen::new();
 
-    for (i, &byte) in HELLO.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
-        }
+    for i in 0..26 {
+        write!(screen, "Hello, {}!\n", i).expect("Write failed");
     }
 
     loop {}

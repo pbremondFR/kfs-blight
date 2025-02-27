@@ -33,10 +33,10 @@ INCLUDES =
 
 # CMake Rust Variables
 RUST_TARGET = $(CURRENT_DIR)/$(ARCH)-kfs.json
-RUST_SRCS = src/lib.rs
+RUST_SRCS = src/lib.rs src/screen.rs
 
 # Recipes
-all: $(NAME)
+all: $(NAME) $(NAME).iso
 
 re: fclean all
 
