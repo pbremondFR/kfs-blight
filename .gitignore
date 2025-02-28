@@ -1,5 +1,5 @@
-/out
 /target
 kfs.elf
 kfs.elf.iso
 /build
+rust-project.json

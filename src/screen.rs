@@ -17,7 +17,6 @@ macro_rules! pr_info {
     ($dst:expr, $($arg:tt)*) => {
         $dst.set_color(VgaColor::LightCyan);
         write!($dst, $($arg)*).expect("Write failed");
-        $dst.set_color(VgaColor::Black);
     }
 }
 
@@ -25,7 +24,6 @@ macro_rules! pr_warn {
     ($dst:expr, $($arg:tt)*) => {
         $dst.set_color(VgaColor::LightRed);
         write!($dst, $($arg)*).expect("Write failed");
-        $dst.set_color(VgaColor::Black);
     }
 }
 
@@ -33,7 +31,12 @@ macro_rules! pr_error {
     ($dst:expr, $($arg:tt)*) => {
         $dst.set_color(VgaColor::Red);
         write!($dst, $($arg)*).expect("Write failed");
-        $dst.set_color(VgaColor::Black);
+    }
+}
+
+macro_rules! printk {
+    ($dst:expr, $($arg:tt)*) => {
+        write!($dst, $($arg)*).expect("Write failed");
     }
 }
 
@@ -66,7 +69,7 @@ pub struct Screen {
 
 impl Screen {
     pub fn new() -> Self {
-        Screen { buf: [0; VGA_BUFFER_SIZE], line: 0, pos: 0, color: VgaColor::Black }
+        Screen { buf: [0; VGA_BUFFER_SIZE], line: 0, pos: 0, color: VgaColor::White }
     }
 
     pub fn set_color(&mut self, color: VgaColor) {

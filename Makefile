@@ -13,7 +13,7 @@ GRUB_SRC = iso
 NAME = kfs.elf
 RELEASE_TYPE = Release
 CURRENT_DIR = ${CURDIR}
-BUILD_DIR = out
+BUILD_DIR = build
 GENERATOR_TYPE = Ninja
 
 # Cmake Linker Variables
@@ -75,5 +75,19 @@ clean:
 	@cmake --build $(BUILD_DIR) -- clean
 	@cmake --build $(BUILD_DIR) -- cargo-clean
 
+rust-project.json:
+	echo "{" > rust-project.json
+	echo "	\"sysroot\": \"$(shell rustc --print sysroot)\"," >> rust-project.json
+	echo "	\"crates\": [" >> rust-project.json
+	echo "		{" >> rust-project.json
+	echo "			\"root_module\": \"src/lib.rs\"," >> rust-project.json
+	echo "			\"edition\": \"2021\"," >> rust-project.json
+	echo "			\"deps\": []," >> rust-project.json
+	echo "			\"target\": \"i386-kfs.json\"," >> rust-project.json
+	echo "			\"display_name\": \"blight\"" >> rust-project.json
+	echo "		}" >> rust-project.json
+	echo "	]" >> rust-project.json
+	echo "}" >> rust-project.json
 
-.PHONY: all re fclean clean run run-iso install_tooling
+
+.PHONY: all re fclean clean run run-iso

@@ -10,7 +10,10 @@ mod screen;
 use screen::*;
 
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    let mut screen = Screen::new();
+
+    pr_error!(screen, "{}", info);
     loop {}
 }
 
@@ -18,6 +21,7 @@ fn panic(_info: &PanicInfo) -> ! {
 pub extern "C" fn kmain() -> ! {
     let mut screen = Screen::new();
 
+    printk!(screen, "42\n");
     for i in 0..4 {
         pr_debug!(screen, "DEBUG MESSAGE {}!\n", i);
         pr_info!(screen, "INFO MESSAGE {}!\n", i);
