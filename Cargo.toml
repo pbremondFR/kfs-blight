@@ -12,3 +12,6 @@ bench = false
 
 [build-dependencies]
 bindgen = "0.69.4"
+
+[lints.rust]
+dead_code = "allow" # Sir, this is a kernel, please fuck off

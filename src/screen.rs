@@ -8,51 +8,75 @@ const VGA_BUFFER_SIZE: usize = VGA_WIDTH * 2 * VGA_HEIGHT;
 
 macro_rules! pr_debug {
     ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(0x7);
+        $dst.set_color(VgaColor::LightGrey);
         write!($dst, $($arg)*).expect("Write failed");
     };
 }
 
 macro_rules! pr_info {
     ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(0xb);
+        $dst.set_color(VgaColor::LightCyan);
         write!($dst, $($arg)*).expect("Write failed");
-        $dst.set_color(0);
+        $dst.set_color(VgaColor::Black);
     }
 }
 
 macro_rules! pr_warn {
     ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(0xc);
+        $dst.set_color(VgaColor::LightRed);
         write!($dst, $($arg)*).expect("Write failed");
-        $dst.set_color(0);
+        $dst.set_color(VgaColor::Black);
     }
 }
 
 macro_rules! pr_error {
     ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(0x4);
+        $dst.set_color(VgaColor::Red);
         write!($dst, $($arg)*).expect("Write failed");
-        $dst.set_color(0);
+        $dst.set_color(VgaColor::Black);
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum VgaColor {
+    Black = 0,
+	Blue = 1,
+	Green = 2,
+	Cyan = 3,
+	Red = 4,
+	Magenta = 5,
+	Brown = 6,
+	LightGrey = 7,
+	DarkGrey = 8,
+	LightBlue = 9,
+	LightGreen = 10,
+	LightCyan = 11,
+	LightRed = 12,
+	LightMagenta = 13,
+	LightBrown = 14,
+	White = 15
+}
 
 pub struct Screen {
     buf: [u8; VGA_BUFFER_SIZE],
     line: usize,
     pos: usize,
-    color: u8,
+    color: VgaColor,
 }
 
 impl Screen {
     pub fn new() -> Self {
-        Screen { buf: [0; VGA_BUFFER_SIZE], line: 0, pos: 0, color: 0x0 }
+        Screen { buf: [0; VGA_BUFFER_SIZE], line: 0, pos: 0, color: VgaColor::Black }
     }
 
-    pub fn set_color(&mut self, color: u8) {
+    pub fn set_color(&mut self, color: VgaColor) {
         self.color = color;
     }
+
+    // XXX: Alternative trick: we'll probably use transmute often...
+    // pub fn set_color(&mut self, color: u8) {
+    //     self.color = unsafe { core::mem::transmute(color) };
+    // }
 
     pub fn scroll_up(&mut self) {
         if self.line < VGA_HEIGHT {
@@ -92,7 +116,7 @@ impl Write for Screen {
                 continue;
             }
             self.buf[(self.pos + self.line * VGA_WIDTH) * 2 ] = byte;
-            self.buf[(self.pos + self.line * VGA_WIDTH) * 2 + 1] = self.color;
+            self.buf[(self.pos + self.line * VGA_WIDTH) * 2 + 1] = self.color as u8;
             self.pos += 1;
         }
 

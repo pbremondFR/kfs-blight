@@ -7,7 +7,7 @@ use core::fmt::Write;
 #[macro_use]
 mod screen;
 
-use screen::Screen;
+use screen::*;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
