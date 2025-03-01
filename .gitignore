@@ -3,3 +3,4 @@ kfs.elf
 kfs.elf.iso
 /build
 rust-project.json
+/out

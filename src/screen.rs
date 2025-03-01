@@ -41,6 +41,7 @@ macro_rules! printk {
 }
 
 #[derive(Debug, Clone, Copy)]
+#[repr(u8)]
 pub enum VgaColor {
     Black = 0,
 	Blue = 1,
