@@ -7,36 +7,33 @@ const VGA_HEIGHT: usize = 25;
 const VGA_BUFFER_SIZE: usize = VGA_WIDTH * 2 * VGA_HEIGHT;
 
 macro_rules! pr_debug {
-    ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(VgaColor::LightGrey);
-        write!($dst, $($arg)*).expect("Write failed");
+    ($($arg:tt)*) => {
+        printk!(LogLevel::Debug, $($arg)*)
     };
 }
 
 macro_rules! pr_info {
-    ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(VgaColor::LightCyan);
-        write!($dst, $($arg)*).expect("Write failed");
-    }
+    ($($arg:tt)*) => {
+        printk!(LogLevel::Info, $($arg)*)
+    };
 }
 
 macro_rules! pr_warn {
-    ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(VgaColor::LightRed);
-        write!($dst, $($arg)*).expect("Write failed");
-    }
+    ($($arg:tt)*) => {
+        printk!(LogLevel::Warn, $($arg)*)
+    };
 }
 
 macro_rules! pr_error {
-    ($dst:expr, $($arg:tt)*) => {
-        $dst.set_color(VgaColor::Red);
-        write!($dst, $($arg)*).expect("Write failed");
-    }
+    ($($arg:tt)*) => {
+        printk!(LogLevel::Error, $($arg)*)
+    };
 }
 
 macro_rules! printk {
-    ($dst:expr, $($arg:tt)*) => {
-        write!($dst, $($arg)*).expect("Write failed");
+    ($level:expr, $($arg:tt)*) => {
+        #[allow(unused_must_use)]
+        printk($level, format_args!($($arg)*))
     }
 }
 
@@ -61,11 +58,30 @@ pub enum VgaColor {
 	White = 15
 }
 
+pub enum LogLevel {
+    Debug = 0,
+    Info,
+    Warn,
+    Error
+}
+
 pub struct Screen {
     buf: [u8; VGA_BUFFER_SIZE],
     line: usize,
     pos: usize,
     color: VgaColor,
+}
+
+static mut SCREEN: Screen = Screen { buf: [0; VGA_BUFFER_SIZE], line: 0, pos: 0, color: VgaColor::White };
+
+#[allow(static_mut_refs)]
+#[allow(unused_must_use)]
+pub fn printk(level: LogLevel, fmt: fmt::Arguments) -> fmt::Result {
+    const LEVEL_COLORS: [VgaColor; 4] = [VgaColor::LightGrey, VgaColor::LightCyan, VgaColor::LightRed, VgaColor::Red];
+    unsafe {
+        SCREEN.set_color(LEVEL_COLORS[level as usize]);
+        fmt::write(&mut SCREEN, fmt)
+    }
 }
 
 impl Screen {

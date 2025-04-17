@@ -2,7 +2,6 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use core::fmt::Write;
 
 #[macro_use]
 mod screen;
@@ -11,22 +10,18 @@ use screen::*;
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    let mut screen = Screen::new();
-
-    pr_error!(screen, "{}", info);
+    pr_error!("{}", info);
     loop {}
 }
 
 #[no_mangle]
 pub extern "C" fn kmain() -> ! {
-    let mut screen = Screen::new();
-
-    printk!(screen, "42\n");
+    printk!(LogLevel::Info, "42\n");
     for i in 0..4 {
-        pr_debug!(screen, "DEBUG MESSAGE {}!\n", i);
-        pr_info!(screen, "INFO MESSAGE {}!\n", i);
-        pr_warn!(screen, "WARN MESSAGE {}!\n", i);
-        pr_error!(screen, "ERROR MESSAGE {}!\n", i);
+        pr_debug!("DEBUG MESSAGE {}!\n", i);
+        pr_info!("INFO MESSAGE {}!\n", i);
+        pr_warn!("WARN MESSAGE {}!\n", i);
+        printk!(LogLevel::Error, "ERROR MESSAGE {}!\n", i);
     }
 
     loop {}
