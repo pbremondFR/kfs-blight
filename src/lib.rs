@@ -1,5 +1,7 @@
 #![no_std]
 #![no_main]
+#![allow(internal_features)]
+#![feature(core_intrinsics)]
 
 use core::panic::PanicInfo;
 
@@ -10,6 +12,7 @@ use screen::*;
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
+    pr_error!("KERNEL PANICK!!!");
     pr_error!("{}", info);
     loop {}
 }

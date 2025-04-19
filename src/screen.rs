@@ -1,5 +1,5 @@
 use core::fmt::{self, Write};
-use core::ptr::copy;
+use core::intrinsics::volatile_copy_nonoverlapping_memory;
 
 const VGA_BUFFER: usize = 0xb8000;
 const VGA_WIDTH: usize = 80;
@@ -143,7 +143,7 @@ impl Write for Screen {
         let vga_buffer = VGA_BUFFER as *mut u8;
 
         unsafe {
-            copy(self.buf.as_ptr(), vga_buffer, VGA_BUFFER_SIZE);
+            volatile_copy_nonoverlapping_memory(vga_buffer, self.buf.as_ptr(), VGA_BUFFER_SIZE);
         }
 
         Ok(())
