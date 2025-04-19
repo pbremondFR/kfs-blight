@@ -1,5 +1,8 @@
 {
     "rust-analyzer.linkedProjects": [
-        "rust-project.json"
-    ]
+        "rust-project.json",
+        "Cargo.toml",
+    ],
+    "rust-analyzer.cargo.allTargets": false,
+    "makefile.configureOnOpen": false
 }
