@@ -56,6 +56,9 @@ $(NAME): $(BUILD_DIR)/$(NAME)
 run-iso: $(NAME).iso
 	@qemu-system-$(ARCH) -cdrom $(NAME).iso
 
+run-debug: $(NAME).iso
+	@qemu-system-$(ARCH) -cdrom $(NAME).iso -s -S
+
 run: $(NAME)
 	@qemu-system-$(ARCH) -kernel $(NAME) -machine type=pc-i440fx-3.1
 

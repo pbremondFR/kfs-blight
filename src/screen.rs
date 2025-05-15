@@ -33,7 +33,7 @@ macro_rules! pr_error {
 macro_rules! printk {
     ($level:expr, $($arg:tt)*) => {
         #[allow(unused_must_use)]
-        printk($level, format_args!($($arg)*))
+        printk($level, format_args_nl!($($arg)*))
     }
 }
 
