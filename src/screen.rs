@@ -8,29 +8,36 @@ const VGA_BUFFER_SIZE: usize = VGA_WIDTH * 2 * VGA_HEIGHT;
 
 macro_rules! pr_debug {
     ($($arg:tt)*) => {
-        printk!(LogLevel::Debug, $($arg)*)
+        printkln!(LogLevel::Debug, $($arg)*)
     };
 }
 
 macro_rules! pr_info {
     ($($arg:tt)*) => {
-        printk!(LogLevel::Info, $($arg)*)
+        printkln!(LogLevel::Info, $($arg)*)
     };
 }
 
 macro_rules! pr_warn {
     ($($arg:tt)*) => {
-        printk!(LogLevel::Warn, $($arg)*)
+        printkln!(LogLevel::Warn, $($arg)*)
     };
 }
 
 macro_rules! pr_error {
     ($($arg:tt)*) => {
-        printk!(LogLevel::Error, $($arg)*)
+        printkln!(LogLevel::Error, $($arg)*)
     };
 }
 
 macro_rules! printk {
+    ($level:expr, $($arg:tt)*) => {
+        #[allow(unused_must_use)]
+        printk($level, format_args!($($arg)*))
+    }
+}
+
+macro_rules! printkln {
     ($level:expr, $($arg:tt)*) => {
         #[allow(unused_must_use)]
         printk($level, format_args_nl!($($arg)*))

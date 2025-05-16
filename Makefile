@@ -22,7 +22,7 @@ LINKER_SCRIPT = $(CURRENT_DIR)/arch/$(ARCH)/linker.ld
 LINKER_FLAGS = -m elf_i386 -z noexecstack -n
 
 # CMake ASM Variables
-ASM_SRCS = $(CURRENT_DIR)/arch/$(ARCH)/multiboot.asm $(CURRENT_DIR)/arch/$(ARCH)/boot.asm $(CURRENT_DIR)/arch/$(ARCH)/gdt.asm
+ASM_SRCS = $(wildcard $(CURRENT_DIR)/arch/$(ARCH)/*.asm)
 ASM_OBJECT_TYPE = elf32
 ASM_FLAGS = -f elf32 -noexecstack
 
@@ -33,7 +33,7 @@ INCLUDES =
 
 # CMake Rust Variables
 RUST_TARGET = $(CURRENT_DIR)/$(ARCH)-kfs.json
-RUST_SRCS = src/lib.rs src/screen.rs src/gdt.rs
+RUST_SRCS = $(wildcard src/*.rs)
 
 # Recipes
 all: $(NAME) $(NAME).iso

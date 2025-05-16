@@ -9,6 +9,7 @@ use core::panic::PanicInfo;
 #[macro_use]
 mod screen;
 mod gdt;
+mod stack_dump;
 
 use screen::*;
 
@@ -36,8 +37,9 @@ pub extern "C" fn kmain() -> ! {
         pr_debug!("DEBUG MESSAGE {}!", i);
         pr_info!("INFO MESSAGE {}!", i);
         pr_warn!("WARN MESSAGE {}!", i);
-        printk!(LogLevel::Error, "ERROR MESSAGE {}!", i);
+        printkln!(LogLevel::Error, "ERROR MESSAGE {}!", i);
     }
+    stack_dump::stack_dump(256);
 
     // unsafe {
     //     let test_ptr = 0x0011_0000 as *mut u32;

@@ -6,10 +6,11 @@ global start
 extern kmain
 
 start:
-	mov esp, stack + STACK_SIZE
+	mov esp, blight_stack + STACK_SIZE
 	mov ebp, esp
 	call kmain
 
 section .bss
-stack:
+global blight_stack
+blight_stack:
 	resb STACK_SIZE
