@@ -30,7 +30,7 @@ pub extern "C" fn kmain() -> ! {
         gdt::write_gdt_entry(4, 0xffff, gdt::GDT_ACCESS_CODE_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
         gdt::write_gdt_entry(5, 0xffff, gdt::GDT_ACCESS_DATA_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
         gdt::write_gdt_entry(6, 0xffff, gdt::GDT_ACCESS_STACK_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
-        gdt::reload_gdt();
+        gdt::reload_gdt(7);
     }
     printk!(LogLevel::Info, "42\n");
     for i in 0..4 {
@@ -40,14 +40,6 @@ pub extern "C" fn kmain() -> ! {
         printkln!(LogLevel::Error, "ERROR MESSAGE {}!", i);
     }
     stack_dump::stack_dump(256);
-
-    // unsafe {
-    //     let test_ptr = 0x0011_0000 as *mut u32;
-    //     pr_debug!("Test pointer == {:#x}", *test_ptr);
-    //     *test_ptr = 0x42424242u32;
-    //     // core::ptr::write_volatile(test_ptr, 0x42424242u32);
-    //     pr_debug!("Test pointer == {:#x}", *test_ptr);
-    // }
 
     loop {}
 }

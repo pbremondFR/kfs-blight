@@ -14,22 +14,23 @@ fn get_ascii_representation(c: u8) -> char {
 	if c >= 32 && c <= 126 { c.into() } else { '.' }
 }
 
-fn dump_slice(slice: &[u8], count: usize) -> usize {
-	let mut count = count; // Could also add mut to parameter declaration but that kinda sucks
+fn dump_slice(slice: &[u8], count: usize) {
 	printk!(LogLevel::Debug, "{:08x} ", count);
-	for (i, c) in slice.iter().enumerate() {
+	for i in 0..16 {
 		if i % 8 == 0 {
 			printk!(LogLevel::Debug, " ");
 		}
-		printk!(LogLevel::Debug, "{:02x} ", c);
-		count += 1;
+		if i < slice.len() {
+			printk!(LogLevel::Debug, "{:02x} ", slice[i]);
+		} else {
+			printk!(LogLevel::Debug, "   ");
+		}
 	}
 	printk!(LogLevel::Debug, " |");
 	for &c in slice.into_iter() {
 		printk!(LogLevel::Debug, "{}", get_ascii_representation(c));
 	}
 	printk!(LogLevel::Debug, "|\n");
-	return count;
 }
 
 pub fn stack_dump(size_to_dump: usize) {

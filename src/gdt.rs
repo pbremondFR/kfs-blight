@@ -67,5 +67,5 @@ pub unsafe fn write_gdt_entry(gdt_index: usize, limit: u32, access: u8, granular
 }
 
 extern "C" {
-	pub fn reload_gdt();
+	pub fn reload_gdt(num_entries: u32);
 }
