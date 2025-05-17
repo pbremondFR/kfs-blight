@@ -39,6 +39,8 @@ pub extern "C" fn kmain() -> ! {
         pr_warn!("WARN MESSAGE {}!", i);
         printkln!(LogLevel::Error, "ERROR MESSAGE {}!", i);
     }
+    let test_stack: [u8; 8] = [b'H', b'e', b'l', b'l', b'o', b' ', b'm', b'8'];
+    pr_debug!("Address of test string: 0x{:08x}", &raw const test_stack as u32);
     stack_dump::stack_dump(256);
 
     loop {}
