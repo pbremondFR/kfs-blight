@@ -3,6 +3,7 @@
 ### Resources
 1. https://os.phil-opp.com/
 2. https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html
+3. https://llvm.org/docs/LangRef.html#data-layout
 
 ### Required Tools
 ```
