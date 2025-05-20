@@ -10,12 +10,13 @@ set(Rust_CARGO_TARGET "$ENV{MAKE_RUST_TARGET}")
 
 enable_language(ASM_NASM C)
 
-include(FetchContent)
-FetchContent_Declare(
-        Corrosion
-        GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-)
-FetchContent_MakeAvailable(Corrosion)
+# include(FetchContent)
+# FetchContent_Declare(
+#         Corrosion
+#         GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+# )
+# FetchContent_MakeAvailable(Corrosion)
+add_subdirectory(corrosion)
 
 
 if(NOT "$ENV{MAKE_CFLAGS}" STREQUAL "")
