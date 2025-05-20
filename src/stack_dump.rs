@@ -1,9 +1,3 @@
-extern "C" {
-	static blight_stack: *const u8;
-}
-
-const STACK_SIZE: usize = 16384;
-
 use crate::screen::*;
 use core::slice::from_raw_parts;
 use core::arch::asm;
