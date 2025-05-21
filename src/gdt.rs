@@ -66,7 +66,7 @@ pub unsafe fn write_gdt_entry(gdt_index: usize, limit: u32, access: u8, granular
 	(*entry).base_high = 0;
 }
 
-extern "C" {
+extern "cdecl" {
 	// Hand-written assembly
 	pub fn reload_gdt(num_entries: u32);
 }

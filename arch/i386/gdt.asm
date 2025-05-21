@@ -5,7 +5,7 @@ gdt_ptr:
 	dw 0		; Define word: Size placeholder, will be set by reload_gdt
 	dd 0x0800	; Define double word: Hardcoded GDT location imposed by subject at 0x00000800
 reload_gdt:
-	; EAX holds number of entries. Do EAX * 8 - 1 for size of table.
+	mov eax, [esp + 4]
 	mov ecx, 8
 	mul ecx
 	dec eax
