@@ -1,4 +1,5 @@
-use crate::screen::*;
+use crate::screen::printk;
+use crate::screen::LogLevel;
 use core::slice::from_raw_parts;
 use core::arch::asm;
 
@@ -27,19 +28,33 @@ fn dump_slice(slice: &[u8], count: usize) {
 	printk!(LogLevel::Debug, "|\n");
 }
 
-pub fn stack_dump(size_to_dump: usize) {
+pub extern "C" fn dump_address(size_to_dump: usize, ptr: usize) {
 	let slice;
-	let esp: usize;
 	unsafe {
-		asm!("mov {:e}, esp", out(reg) esp);
-		slice = from_raw_parts(esp as *const u8, size_to_dump);
+		slice = from_raw_parts(ptr as *const u8, size_to_dump);
 	}
 	let mut count = 0;
 	while count < size_to_dump {
 		let end = size_to_dump.min(count+16);
 		let subslice = &slice[count..end];
-		dump_slice(subslice, count + esp);
+		dump_slice(subslice, count + ptr);
 		count += subslice.len();
 	}
-	printkln!(LogLevel::Debug, "{:08x}", count + esp);
+	printkln!(LogLevel::Debug, "{:08x}", count + ptr);
+}
+
+// Force inline expansion to keep the esp from the caller.
+// Technically Rust doesn't 100% guarantee expansion, but according to the book,
+// "in practice #[inline(always)] will cause inlining in all but the most
+// exceptional cases". For this 2-liner, we should be good to go.
+#[inline(always)]
+pub extern "C" fn stack_dump(size_to_dump: usize) {
+	let esp: u32;
+	let ebp: u32;
+	unsafe {
+		asm!("mov {:e}, esp", out(reg) esp);
+		asm!("mov {:e}, ebp", out(reg) ebp);
+	}
+	pr_debug!("STACK DUMP: esp 0x{:08x}, ebp 0x{:08x}", esp, ebp);
+	dump_address(size_to_dump, esp as usize);
 }

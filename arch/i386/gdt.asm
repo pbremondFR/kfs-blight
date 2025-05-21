@@ -1,3 +1,4 @@
+section .text
 global reload_gdt
 
 gdt_ptr:

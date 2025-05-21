@@ -67,5 +67,14 @@ pub unsafe fn write_gdt_entry(gdt_index: usize, limit: u32, access: u8, granular
 }
 
 extern "C" {
+	// Hand-written assembly
 	pub fn reload_gdt(num_entries: u32);
 }
+
+// Cool resources:
+// https://samypesse.gitbook.io/how-to-create-an-operating-system/chapter-6
+// https://www.independent-software.com/operating-system-development-protected-mode-global-descriptor-table.html
+// http://www.brokenthorn.com/Resources/OSDev8.html
+// http://www.osdever.net/tutorials/view/protected-mode
+// xv6: Haven't actually looked at it but it seems very cool: https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf
+// And of course the OSDev wiki

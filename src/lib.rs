@@ -23,16 +23,8 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[no_mangle]
 pub extern "C" fn kmain() -> ! {
-    let mut ebp: usize;
-    let mut esp: usize;
-    unsafe {
-        asm!("mov {:e}, ebp", out(reg) ebp);
-        asm!("mov {:e}, esp", out(reg) esp);
-    }
-    pr_debug!("esp: 0x{:08x}, ebp: 0x{:08x}", esp, ebp);
-    for align in [4, 8, 16] {
-        pr_debug!("{:2} bytes alignment: ESP={:5}, EBP={:5}", align, esp % align == 0, ebp % align == 0);
-    }
+    let test_stack: [u8; 8] = [b'H', b'e', b'l', b'l', b'o', b' ', b'm', b'8'];
+    // Setup GDT
     unsafe {
         gdt::write_gdt_entry(0, 0, 0, 0);
         gdt::write_gdt_entry(1, 0xffff, gdt::GDT_ACCESS_CODE_PL0, gdt::GDT_SEG_GRANULAR_FLAGS);
@@ -43,17 +35,19 @@ pub extern "C" fn kmain() -> ! {
         gdt::write_gdt_entry(6, 0xffff, gdt::GDT_ACCESS_STACK_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
         gdt::reload_gdt(7);
     }
-    printk!(LogLevel::Info, "42\n");
+
+    pr_info!("42");
     for i in 0..1 {
         pr_debug!("DEBUG MESSAGE {}!", i);
         pr_info!("INFO MESSAGE {}!", i);
         pr_warn!("WARN MESSAGE {}!", i);
         printkln!(LogLevel::Error, "ERROR MESSAGE {}!", i);
     }
-    let test_stack: [u8; 8] = [b'H', b'e', b'l', b'l', b'o', b' ', b'm', b'8'];
     pr_debug!("Address of test string: 0x{:08x}", &raw const test_stack as u32);
     stack_dump::stack_dump(128);
 
+    let mut ebp: usize;
+    let mut esp: usize;
     unsafe {
         asm!("mov {:e}, ebp", out(reg) ebp);
         asm!("mov {:e}, esp", out(reg) esp);
