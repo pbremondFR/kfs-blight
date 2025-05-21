@@ -11,6 +11,8 @@ use core::arch::asm;
 mod screen;
 mod gdt;
 mod stack_dump;
+mod io;
+mod kb_scancodes;
 
 use screen::*;
 
@@ -57,5 +59,13 @@ pub extern "C" fn kmain() -> ! {
         pr_debug!("{:2} bytes alignment: ESP={:5}, EBP={:5}", align, esp % align == 0, ebp % align == 0);
     }
 
-    loop {}
+    loop {
+        let ps2_status = io::inb(0x64);
+        if ps2_status & 1 == 1 {
+            kb_scancodes::on_ps2_kb_input();
+            // let data = io::inb(0x60);
+            // let key = kb_scancodes::SCANCODES_CHARS[data as usize];
+            // pr_debug!("Received data 0x{:02x}: {}", data, key as char);
+        }
+    }
 }
