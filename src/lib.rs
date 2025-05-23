@@ -3,6 +3,7 @@
 #![allow(internal_features)]
 #![feature(core_intrinsics)]
 #![feature(format_args_nl)]
+#![feature(core_io_borrowed_buf)]
 
 use core::panic::PanicInfo;
 use core::arch::asm;
@@ -14,6 +15,7 @@ mod stack_dump;
 mod io;
 mod kb_scancodes;
 mod microshell;
+mod fixed_string;
 
 use screen::*;
 

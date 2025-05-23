@@ -1,7 +1,9 @@
 use crate::screen::printk;
 use crate::screen::LogLevel;
+use crate::screen::VGA_WIDTH;
 use core::slice::from_raw_parts;
 use core::arch::asm;
+use core::fmt::*;
 
 // 00000000  23 20 42 4c 49 47 48 54  20 62 79 20 4a 6f 6c 61  |# BLIGHT by Jola|
 
@@ -10,22 +12,26 @@ fn get_ascii_representation(c: u8) -> char {
 }
 
 fn dump_slice(slice: &[u8], count: usize) {
-	printk!(LogLevel::Debug, "{:08x} ", count);
+	use crate::fixed_string::*;
+	let mut buffer = FixedString::<VGA_WIDTH>::new();
+
+	let _ = write!(&mut buffer, "{:08x} ", count);
 	for i in 0..16 {
 		if i % 8 == 0 {
-			printk!(LogLevel::Debug, " ");
+			let _ = buffer.write_char(' ');
 		}
 		if i < slice.len() {
-			printk!(LogLevel::Debug, "{:02x} ", slice[i]);
+			let _ = write!(&mut buffer, "{:02x} ", slice[i]);
 		} else {
-			printk!(LogLevel::Debug, "   ");
+			let _ = buffer.write_str("   ");
 		}
 	}
-	printk!(LogLevel::Debug, " |");
+	let _ = buffer.write_str(" |");
 	for &c in slice.into_iter() {
-		printk!(LogLevel::Debug, "{}", get_ascii_representation(c));
+		let _ = write!(&mut buffer, "{}", get_ascii_representation(c));
 	}
-	printk!(LogLevel::Debug, "|\n");
+	let _ = buffer.write_str("|");
+	printkln!(LogLevel::Debug, "{}", unsafe { buffer.as_str_unchecked() });
 }
 
 pub extern "C" fn dump_address(size_to_dump: usize, ptr: usize) {
