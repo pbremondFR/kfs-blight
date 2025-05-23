@@ -23,19 +23,19 @@ inl:
 	ret
 
 outb:
-	mov dx, [esp+8]
-	mov al, [esp+4]
+	mov dx, [esp+4]
+	mov al, [esp+8]
 	out dx, al
 	ret
 
 outw:
-	mov dx, [esp+8]
-	mov ax, [esp+4]
+	mov dx, [esp+4]
+	mov ax, [esp+8]
 	out dx, ax
 	ret
 
 outl:
-	mov dx, [esp+8]
-	mov eax, [esp+4]
+	mov dx, [esp+4]
+	mov eax, [esp+8]
 	out dx, eax
 	ret
