@@ -58,3 +58,14 @@ pub extern "C" fn stack_dump(size_to_dump: usize) {
 	pr_debug!("STACK DUMP: esp 0x{:08x}, ebp 0x{:08x}", esp, ebp);
 	dump_address(size_to_dump, esp as usize);
 }
+
+// Force inline expansion to keep the esp from the caller.
+// Technically Rust doesn't 100% guarantee expansion, but according to the book,
+// "in practice #[inline(always)] will cause inlining in all but the most
+// exceptional cases". For this 2-liner, we should be good to go.
+#[inline(always)]
+pub fn stack_dump_cmd(mut args: core::str::SplitAsciiWhitespace) {
+	if let Ok(size) = args.next().unwrap_or("128").parse() {
+		stack_dump(size);
+	}
+}

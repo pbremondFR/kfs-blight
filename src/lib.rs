@@ -13,12 +13,13 @@ mod gdt;
 mod stack_dump;
 mod io;
 mod kb_scancodes;
+mod microshell;
 
 use screen::*;
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    pr_error!("KERNEL PANICK!!!");
+    // pr_error!("KERNEL PANICK!!!");
     pr_error!("{}", info);
     loop {}
 }
@@ -37,6 +38,7 @@ pub extern "C" fn kmain() -> ! {
         gdt::write_gdt_entry(6, 0xffff, gdt::GDT_ACCESS_STACK_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
         gdt::reload_gdt(7);
     }
+    microshell::init_shell();
 
     pr_info!("42");
     for i in 0..1 {
@@ -68,4 +70,19 @@ pub extern "C" fn kmain() -> ! {
             // pr_debug!("Received data 0x{:02x}: {}", data, key as char);
         }
     }
+}
+
+#[no_mangle]
+pub extern "cdecl" fn reboot() -> ! {
+    // Snippet of code from OsDev. Use the 8042 keyboard controller to pulse the CPU reset pin.
+    let mut good: u8 = 0x02;
+    while good & 0x02 != 0 {
+        good = io::inb(0x64);
+    }
+    io::outb(0x64, 0xFE);
+    // Should be unreachable beyond this point, if for some reason the reboot doesn't work,
+    // just halt the CPU
+    unsafe { core::arch::asm!("hlt"); }
+    // Infinite loop to show rust that we're never exiting this function
+    loop {}
 }

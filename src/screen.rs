@@ -1,10 +1,10 @@
 use core::fmt::{self, Write};
 use core::intrinsics::volatile_copy_nonoverlapping_memory;
 
-const VGA_BUFFER: usize = 0xb8000;
-const VGA_WIDTH: usize = 80;
-const VGA_HEIGHT: usize = 25;
-const VGA_BUFFER_SIZE: usize = VGA_WIDTH * 2 * VGA_HEIGHT;
+pub const VGA_BUFFER: usize = 0xb8000;
+pub const VGA_WIDTH: usize = 80;
+pub const VGA_HEIGHT: usize = 24; // 1 line less to allow space for the input line
+pub const VGA_BUFFER_SIZE: usize = VGA_WIDTH * 2 * VGA_HEIGHT;
 
 macro_rules! pr_debug {
     ($($arg:tt)*) => {
@@ -119,8 +119,8 @@ impl Screen {
                 }
             }
             for i in 0..VGA_WIDTH {
-                self.buf[(i + 24 * VGA_WIDTH) * 2 ] = 0;
-                self.buf[(i + 24 * VGA_WIDTH) * 2 + 1] = 0;
+                self.buf[(i + (VGA_HEIGHT - 1) * VGA_WIDTH) * 2 ] = 0;
+                self.buf[(i + (VGA_HEIGHT - 1) * VGA_WIDTH) * 2 + 1] = 0;
             }
         }
     }
