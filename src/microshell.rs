@@ -99,9 +99,9 @@ pub fn init_shell() {
 	// Fill buffer with color
 	unsafe { clear_buffer(); }
 
-	// Enable cursor, is 2 scanlines tall (between scanlines 13 and 15 of character)
+	// Enable cursor, is 2 scanlines tall (between scanlines 14 and 15 of character)
 	io::outb(0x3D4, 0x0A);
-	io::outb(0x3D5, (io::inb(0x3D5) & 0xC0) | 13);
+	io::outb(0x3D5, (io::inb(0x3D5) & 0xC0) | 14);
 
 	io::outb(0x3D4, 0x0B);
 	io::outb(0x3D5, (io::inb(0x3D5) & 0xE0) | 15);

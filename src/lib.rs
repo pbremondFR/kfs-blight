@@ -65,9 +65,6 @@ pub extern "C" fn kmain() -> ! {
         let ps2_status = io::inb(0x64);
         if ps2_status & 1 == 1 {
             kb_scancodes::on_ps2_kb_input();
-            // let data = io::inb(0x60);
-            // let key = kb_scancodes::SCANCODES_CHARS[data as usize];
-            // pr_debug!("Received data 0x{:02x}: {}", data, key as char);
         }
     }
 }
