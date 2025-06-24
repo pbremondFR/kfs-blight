@@ -71,6 +71,17 @@ impl ShellBuf {
 			match cmd {
 				"STACK" => { stack_dump::stack_dump_cmd(tokens); },
 				"REBOOT" => { crate::reboot(); }
+				"SWITCH" => { 
+					match tokens.next() {
+						Some(a) => {
+							match a.parse::<usize>() {
+								Ok(active) => switch(active),
+								Err(e) => { pr_error!("SWITCH: unable to parse {}, {}", a, e); }
+							}
+						},
+						None => { pr_error!("SWITCH: must provide an argument [0,1,2,3]"); }
+					}
+				}
 				_ => { pr_error!("{}: not found", cmd); },
 			}
 		}

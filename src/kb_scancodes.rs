@@ -1,5 +1,6 @@
 use crate::io;
 use crate::microshell;
+use crate::screen::switch;
 
 pub const SCANCODES_CHARS: [u8; 256] = make_scancodes();
 const BACKSPACE: u8 = 0x0e;
@@ -7,6 +8,10 @@ const ENTER: u8 = 0x1c;
 const ESCAPE: u8 = 0x01;
 const LEFT_ARROW: u8 = 0x4b;
 const RIGHT_ARROW: u8 = 0x4d;
+const F1: u8 = 0x3b;
+const F2: u8 = 0x3c;
+const F3: u8 = 0x3d;
+const F4: u8 = 0x3e;
 
 const fn make_scancodes() -> [u8; 256] {
 	let mut scancodes: [u8; 256] = [b'.'; 256];
@@ -101,6 +106,8 @@ pub fn on_ps2_kb_input() {
 		unsafe { microshell::enter_cmd(); }
 	} else if code == ESCAPE {
 		unsafe { microshell::clear_buffer(); }
+	} else if code >= F1  && code <= F4 {
+		switch((code - F1) as usize);
 	} else {
 		return;
 	}

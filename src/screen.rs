@@ -32,7 +32,6 @@ macro_rules! pr_error {
 
 macro_rules! printk {
     ($level:expr, $($arg:tt)*) => {
-        #[allow(unused_must_use)]
         printk($level, format_args!($($arg)*))
     }
 }
@@ -73,13 +72,14 @@ pub enum LogLevel {
 }
 
 pub struct Screen {
-    buf: [u8; VGA_BUFFER_SIZE],
-    line: usize,
-    pos: usize,
+    buf: [[u8; VGA_BUFFER_SIZE]; 4],
+    active: usize,
+    line: [usize; 4],
+    pos: [usize; 4],
     color: VgaColor,
 }
 
-static mut SCREEN: Screen = Screen { buf: [0; VGA_BUFFER_SIZE], line: 0, pos: 0, color: VgaColor::White };
+static mut SCREEN: Screen = Screen { buf: [[0; VGA_BUFFER_SIZE]; 4], active: 0, line: [0; 4], pos: [0; 4], color: VgaColor::White };
 
 #[allow(static_mut_refs)]
 #[allow(unused_must_use)]
@@ -91,9 +91,17 @@ pub fn printk(level: LogLevel, fmt: fmt::Arguments) -> fmt::Result {
     }
 }
 
+#[allow(static_mut_refs)]
+#[allow(unused_must_use)]
+pub fn switch(active: usize) {
+    unsafe {
+        SCREEN.switch_active(active);
+    }
+}
+
 impl Screen {
     pub fn new() -> Self {
-        Screen { buf: [0; VGA_BUFFER_SIZE], line: 0, pos: 0, color: VgaColor::White }
+        Screen { buf: [[0; VGA_BUFFER_SIZE]; 4], active: 0, line: [0; 4], pos: [0; 4], color: VgaColor::White }
     }
 
     pub fn set_color(&mut self, color: VgaColor) {
@@ -105,22 +113,34 @@ impl Screen {
     //     self.color = unsafe { core::mem::transmute(color) };
     // }
 
+    pub fn switch_active(&mut self, active: usize) {
+        if active > 3 {
+            self.active = 3;
+        } else {
+            self.active = active;
+        }
+        let vga_buffer = VGA_BUFFER as *mut u8;
+        unsafe {
+            volatile_copy_nonoverlapping_memory(vga_buffer, self.buf[self.active].as_ptr(), VGA_BUFFER_SIZE);
+        }
+    }
+
     pub fn scroll_up(&mut self) {
-        if self.line < VGA_HEIGHT {
-            self.line += 1;
+        if self.line[self.active] < VGA_HEIGHT {
+            self.line[self.active] += 1;
 
         } else {
-            self.line -= 1;
+            self.line[self.active] -= 1;
 
             for i in 0..(VGA_HEIGHT - 1) {
                 for j in 0..VGA_WIDTH {
-                    self.buf[(j + i * VGA_WIDTH) * 2] = self.buf[(j + (i + 1) * VGA_WIDTH) * 2];
-                    self.buf[(j + i * VGA_WIDTH) * 2 + 1] = self.buf[(j + (i + 1) * VGA_WIDTH) * 2 + 1];
+                    self.buf[self.active][(j + i * VGA_WIDTH) * 2] = self.buf[self.active][(j + (i + 1) * VGA_WIDTH) * 2];
+                    self.buf[self.active][(j + i * VGA_WIDTH) * 2 + 1] = self.buf[self.active][(j + (i + 1) * VGA_WIDTH) * 2 + 1];
                 }
             }
             for i in 0..VGA_WIDTH {
-                self.buf[(i + (VGA_HEIGHT - 1) * VGA_WIDTH) * 2 ] = 0;
-                self.buf[(i + (VGA_HEIGHT - 1) * VGA_WIDTH) * 2 + 1] = 0;
+                self.buf[self.active][(i + (VGA_HEIGHT - 1) * VGA_WIDTH) * 2 ] = 0;
+                self.buf[self.active][(i + (VGA_HEIGHT - 1) * VGA_WIDTH) * 2 + 1] = 0;
             }
         }
     }
@@ -132,25 +152,25 @@ impl Write for Screen {
             return Err(fmt::Error);
         }
 
-        if self.line == VGA_HEIGHT {
+        if self.line[self.active] == VGA_HEIGHT {
             self.scroll_up();
         }
 
         for byte in s.bytes() {
-            if byte == b'\n' || self.pos == VGA_WIDTH * 2 {
-                self.pos = 0;
+            if byte == b'\n' || self.pos[self.active] == VGA_WIDTH * 2 {
+                self.pos[self.active] = 0;
                 self.scroll_up();
                 continue;
             }
-            self.buf[(self.pos + self.line * VGA_WIDTH) * 2 ] = byte;
-            self.buf[(self.pos + self.line * VGA_WIDTH) * 2 + 1] = self.color as u8;
-            self.pos += 1;
+            self.buf[self.active][(self.pos[self.active] + self.line[self.active] * VGA_WIDTH) * 2 ] = byte;
+            self.buf[self.active][(self.pos[self.active] + self.line[self.active] * VGA_WIDTH) * 2 + 1] = self.color as u8;
+            self.pos[self.active] += 1;
         }
 
         let vga_buffer = VGA_BUFFER as *mut u8;
 
         unsafe {
-            volatile_copy_nonoverlapping_memory(vga_buffer, self.buf.as_ptr(), VGA_BUFFER_SIZE);
+            volatile_copy_nonoverlapping_memory(vga_buffer, self.buf[self.active].as_ptr(), VGA_BUFFER_SIZE);
         }
 
         Ok(())
