@@ -1,5 +1,7 @@
 use crate::io;
 use crate::microshell;
+use crate::screen::scroll_down;
+use crate::screen::scroll_up;
 use crate::screen::switch;
 
 pub const SCANCODES_CHARS: [u8; 256] = make_scancodes();
@@ -8,6 +10,8 @@ const ENTER: u8 = 0x1c;
 const ESCAPE: u8 = 0x01;
 const LEFT_ARROW: u8 = 0x4b;
 const RIGHT_ARROW: u8 = 0x4d;
+const UP_ARROW: u8 = 0x48;
+const DOWN_ARROW: u8 = 0x50;
 const F1: u8 = 0x3b;
 const F2: u8 = 0x3c;
 const F3: u8 = 0x3d;
@@ -108,7 +112,17 @@ pub fn on_ps2_kb_input() {
 		unsafe { microshell::clear_buffer(); }
 	} else if code >= F1  && code <= F4 {
 		switch((code - F1) as usize);
-	} else {
-		return;
-	}
+	} else if code == ESCAPE {
+        unsafe {
+            microshell::clear_buffer();
+        }
+    } else if code >= F1 && code <= F4 {
+        switch((code - F1) as usize);
+    } else if code == UP_ARROW {
+        scroll_up();
+    } else if code == DOWN_ARROW {
+        scroll_down();
+    } else {
+        return;
+    }
 }

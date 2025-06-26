@@ -66,22 +66,24 @@ impl ShellBuf {
 
 	}
 
+	fn switch_cmd(arg: Option<&str>) {
+		match arg {
+			Some(a) => {
+				match a.parse::<usize>() {
+					Ok(active) => switch(active),
+					Err(e) => { pr_error!("SWITCH: unable to parse {}, {}", a, e); }
+				}
+			},
+			None => { pr_error!("SWITCH: must provide an argument [0,1,2,3]"); }
+		}
+	}
+
 	fn match_command(mut tokens: core::str::SplitAsciiWhitespace) {
 		if let Some(cmd) = tokens.next() {
 			match cmd {
 				"STACK" => { stack_dump::stack_dump_cmd(tokens); },
 				"REBOOT" => { crate::reboot(); }
-				"SWITCH" => { 
-					match tokens.next() {
-						Some(a) => {
-							match a.parse::<usize>() {
-								Ok(active) => switch(active),
-								Err(e) => { pr_error!("SWITCH: unable to parse {}, {}", a, e); }
-							}
-						},
-						None => { pr_error!("SWITCH: must provide an argument [0,1,2,3]"); }
-					}
-				}
+				"SWITCH" => { Self::switch_cmd(tokens.next()) }
 				_ => { pr_error!("{}: not found", cmd); },
 			}
 		}
