@@ -159,8 +159,8 @@ impl Screen {
         let vga_buffer = VGA_BUFFER as *mut u8;
 
         let offset = self.offset[self.active];
+        let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
         unsafe {
-            let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
             volatile_copy_nonoverlapping_memory(vga_buffer, slice.as_ptr(), VGA_BUFFER_SIZE);
         }
     }
@@ -169,9 +169,8 @@ impl Screen {
         let vga_buffer = VGA_BUFFER as *mut u8;
         self.offset[self.active] = self.offset[self.active].saturating_sub(VGA_WIDTH * 2);
         let offset = self.offset[self.active];
-
+        let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
         unsafe {
-            let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
             volatile_copy_nonoverlapping_memory(vga_buffer, slice.as_ptr(), VGA_BUFFER_SIZE);
         }
     }
@@ -179,13 +178,15 @@ impl Screen {
     pub fn scroll_down(&mut self) {
         let vga_buffer = VGA_BUFFER as *mut u8;
         self.offset[self.active] = self.offset[self.active].saturating_add(VGA_WIDTH * 2);
+        if self.offset[self.active] > (self.line[self.active] - 1) * VGA_WIDTH * 2 {
+            self.offset[self.active] = (self.line[self.active] - 1) * VGA_WIDTH * 2;
+        }
         if self.offset[self.active] > SCREEN_BUFFER_SIZE - VGA_BUFFER_SIZE {
             self.offset[self.active] = SCREEN_BUFFER_SIZE - VGA_BUFFER_SIZE;
         }
         let offset = self.offset[self.active];
-
+        let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
         unsafe {
-            let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
             volatile_copy_nonoverlapping_memory(vga_buffer, slice.as_ptr(), VGA_BUFFER_SIZE);
         }
     }
@@ -239,11 +240,10 @@ impl Write for Screen {
         }
 
         let vga_buffer = VGA_BUFFER as *mut u8;
-
+        let offset = self.line[self.active].saturating_sub(VGA_HEIGHT) * VGA_WIDTH * 2;
+        self.offset[self.active] = offset;
+        let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
         unsafe {
-            let offset = self.line[self.active].saturating_sub(VGA_HEIGHT) * VGA_WIDTH * 2;
-            self.offset[self.active] = offset;
-            let slice = &self.buf[self.active][offset..offset + VGA_BUFFER_SIZE];
             volatile_copy_nonoverlapping_memory(vga_buffer, slice.as_ptr(), VGA_BUFFER_SIZE);
         }
 
