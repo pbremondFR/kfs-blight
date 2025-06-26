@@ -11,7 +11,7 @@ GRUB_SRC = iso
 
 # Basic
 NAME = kfs.elf
-RELEASE_TYPE = Release
+RELEASE_TYPE = Debug
 CURRENT_DIR = ${CURDIR}
 BUILD_DIR = build
 GENERATOR_TYPE = Ninja
@@ -22,9 +22,9 @@ LINKER_SCRIPT = $(CURRENT_DIR)/arch/$(ARCH)/linker.ld
 LINKER_FLAGS = -m elf_i386 -z noexecstack -n
 
 # CMake ASM Variables
-ASM_SRCS = $(CURRENT_DIR)/arch/$(ARCH)/multiboot.asm $(CURRENT_DIR)/arch/$(ARCH)/boot.asm
+ASM_SRCS = $(wildcard $(CURRENT_DIR)/arch/$(ARCH)/*.asm)
 ASM_OBJECT_TYPE = elf32
-ASM_FLAGS = -f elf32 -noexecstack
+ASM_FLAGS = -f elf32 -F dwarf -g
 
 # CMake C Variables
 CFLAGS =
@@ -33,7 +33,7 @@ INCLUDES =
 
 # CMake Rust Variables
 RUST_TARGET = $(CURRENT_DIR)/$(ARCH)-kfs.json
-RUST_SRCS = src/lib.rs src/screen.rs
+RUST_SRCS = $(wildcard src/*.rs)
 
 # Recipes
 all: $(NAME) $(NAME).iso
@@ -54,7 +54,15 @@ $(NAME): $(BUILD_DIR)/$(NAME)
 	@cp $(BUILD_DIR)/$(NAME) .
 
 run-iso: $(NAME).iso
-	@qemu-system-$(ARCH) -cdrom $(NAME).iso
+# -boot d changes boot order for CD/DVD drive first, -display curses is for text mode
+	@qemu-system-$(ARCH) -boot d -cdrom $(NAME).iso -display curses
+
+run-debug: $(NAME).iso
+# To quit a text mode debugging session: Alt+2, type "q" or "quit" in the qemu console
+# With GDB running, "kill" does the trick. There's an "fq" alias for that in the .gdbinit file.
+# -s: same as "-gdb tcp::1234", to have a debugging session
+# -S: Don't start the CPU, wait for continue call from GDB
+	@qemu-system-$(ARCH) -boot d -cdrom $(NAME).iso -s -S -display curses
 
 run: $(NAME)
 	@qemu-system-$(ARCH) -kernel $(NAME) -machine type=pc-i440fx-3.1
