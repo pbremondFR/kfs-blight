@@ -40,7 +40,11 @@ all: $(NAME) $(NAME).iso
 
 re: fclean all
 
-$(BUILD_DIR): CMakeLists.txt build.rs $(RUST_SRCS) $(C_SRCS) $(INCLUDES) $(ASM_SRCS) $(LINKER_SCRIPT)
+corrosion/CMakeLists.txt:
+	@git submodule init
+	@git submodule update
+
+$(BUILD_DIR): CMakeLists.txt build.rs $(RUST_SRCS) $(C_SRCS) $(INCLUDES) $(ASM_SRCS) $(LINKER_SCRIPT) corrosion/CMakeLists.txt
 	@MAKE_NAME="$(NAME)" MAKE_LINKER_SCRIPT="$(LINKER_SCRIPT)" MAKE_LINKER_FLAGS="$(LINKER_FLAGS)" \
 	MAKE_ASM_FLAGS="$(ASM_FLAGS)" MAKE_ASM_SRCS="$(ASM_SRCS)" MAKE_RUST_TARGET="$(RUST_TARGET)" \
 	MAKE_ASM_OBJECT_TYPE="$(ASM_OBJECT_TYPE)" MAKE_LINKER_EXECUTABLE_PATH="$(LINKER_EXECUTABLE_PATH)" \
