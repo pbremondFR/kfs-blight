@@ -7,11 +7,12 @@ use core::slice::from_raw_parts_mut;
 pub struct ShellBuf {
 	buf: [u8; VGA_WIDTH],
 	len: usize,
+	cursor_pos: usize,
 }
 
 impl ShellBuf {
 	fn update_cursor(&self) {
-		let x = self.len as u16;
+		let x = self.cursor_pos as u16;
 		let y = VGA_HEIGHT as u16;
 		let pos = (y * VGA_WIDTH as u16) + x;
 
@@ -19,6 +20,15 @@ impl ShellBuf {
 		io::outb(0x3d5, (pos & 0xff) as u8);
 		io::outb(0x3d4, 0x0e);
 		io::outb(0x3d5, ((pos >> 8) & 0xff) as u8);
+	}
+
+	fn set_cursor_pos(&mut self, pos: usize) -> bool {
+		if pos > self.len {
+			return false;
+		}
+		self.cursor_pos = pos;
+		self.update_cursor();
+		return true;
 	}
 
 	unsafe fn flush_buffer(&self) {
@@ -42,11 +52,15 @@ impl ShellBuf {
 		}
 	}
 
-	unsafe fn push_shell_char(&mut self, c: u8) -> bool {
+	unsafe fn insert_shell_char(&mut self, c: u8) -> bool {
 		if self.len >= VGA_WIDTH {
 			return false;
 		} else {
-			self.buf[self.len] = c;
+			if self.cursor_pos != self.len {
+				self.buf.copy_within(self.cursor_pos..self.len, self.cursor_pos + 1);
+			}
+			self.buf[self.cursor_pos] = c;
+			self.cursor_pos += 1;
 			self.len += 1;
 			self.flush_buffer();
 			self.update_cursor();
@@ -54,10 +68,15 @@ impl ShellBuf {
 		}
 	}
 
-	unsafe fn pop_shell_char(&mut self) -> bool {
-		if self.len == 0 {
+	unsafe fn remove_shell_char(&mut self) -> bool {
+		if self.len == 0 || self.cursor_pos == 0 {
 			return false;
 		} else {
+			if self.cursor_pos != self.len {
+
+				self.buf.copy_within(self.cursor_pos..self.len, self.cursor_pos - 1);
+			}
+			self.cursor_pos -= 1;
 			self.len -= 1;
 			self.flush_buffer();
 			self.update_cursor();
@@ -94,19 +113,21 @@ impl ShellBuf {
 		let tokens = str.split_ascii_whitespace();
 		Self::match_command(tokens);
 		self.len = 0;
+		self.cursor_pos = 0;
 		self.flush_buffer();
 		self.update_cursor();
 	}
 
 	unsafe fn clear_buffer(&mut self) {
 		self.len = 0;
+		self.cursor_pos = 0;
 		self.flush_buffer();
 		self.update_cursor();
 	}
 
 }
 
-pub static mut SHELL_INPUT: ShellBuf = ShellBuf{buf: [0; VGA_WIDTH], len: 0};
+pub static mut SHELL_INPUT: ShellBuf = ShellBuf{buf: [0; VGA_WIDTH], len: 0, cursor_pos: 0};
 
 pub fn init_shell() {
 	// Fill buffer with color
@@ -130,14 +151,14 @@ pub fn init_shell() {
 pub unsafe fn push_shell_char(c: u8) -> bool {
 	unsafe {
 		let shell = &raw mut SHELL_INPUT;
-		(*shell).push_shell_char(c)
+		(*shell).insert_shell_char(c)
 	}
 }
 
 pub unsafe fn pop_shell_char() -> bool {
 	unsafe {
 		let shell = &raw mut SHELL_INPUT;
-		(*shell).pop_shell_char()
+		(*shell).remove_shell_char()
 	}
 }
 
@@ -152,5 +173,13 @@ pub unsafe fn clear_buffer() {
 	unsafe {
 		let shell = &raw mut SHELL_INPUT;
 		(*shell).clear_buffer()
+	}
+}
+
+pub unsafe fn shift_cursor(offset: isize) {
+	unsafe {
+		let shell = &raw mut SHELL_INPUT;
+		let cursor_pos = (*shell).cursor_pos as isize;
+		(*shell).set_cursor_pos((cursor_pos + offset) as usize);
 	}
 }

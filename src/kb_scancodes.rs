@@ -122,6 +122,10 @@ pub fn on_ps2_kb_input() {
         scroll_up();
     } else if code == DOWN_ARROW {
         scroll_down();
+	} else if code == LEFT_ARROW {
+		unsafe { microshell::shift_cursor(-1); }
+	} else if code == RIGHT_ARROW {
+		unsafe { microshell::shift_cursor(1); }
     } else {
         return;
     }
