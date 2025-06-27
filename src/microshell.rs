@@ -1,7 +1,7 @@
-use crate::screen::*;
 use crate::io;
-use crate::stack_dump;
 use crate::screen::VGA_WIDTH;
+use crate::screen::*;
+use crate::stack_dump;
 use core::slice::from_raw_parts_mut;
 
 pub struct ShellBuf {
@@ -73,7 +73,6 @@ impl ShellBuf {
 			return false;
 		} else {
 			if self.cursor_pos != self.len {
-
 				self.buf.copy_within(self.cursor_pos..self.len, self.cursor_pos - 1);
 			}
 			self.cursor_pos -= 1;
@@ -82,29 +81,38 @@ impl ShellBuf {
 			self.update_cursor();
 			return true;
 		}
-
 	}
 
 	fn switch_cmd(arg: Option<&str>) {
 		match arg {
-			Some(a) => {
-				match a.parse::<usize>() {
-					Ok(active) => switch(active),
-					Err(e) => { pr_error!("SWITCH: unable to parse {}, {}", a, e); }
-				}
+			Some(a) => match a.parse::<usize>() {
+				Ok(active) => switch(active),
+				Err(e) => {
+					pr_error!("SWITCH: unable to parse {}, {}", a, e);
+				},
 			},
-			None => { pr_error!("SWITCH: must provide an argument [0,1,2,3]"); }
+			None => {
+				pr_error!("SWITCH: must provide an argument [0,1,2,3]");
+			},
 		}
 	}
 
 	fn match_command(mut tokens: core::str::SplitAsciiWhitespace) {
 		if let Some(cmd) = tokens.next() {
 			match cmd {
-				"STACK" => { stack_dump::stack_dump_cmd(tokens); },
-				"REBOOT" => { crate::reboot(); }
-				"SWITCH" => { Self::switch_cmd(tokens.next()) }
-				"CLEAR" => { crate::clear_screen(); }
-				_ => { pr_error!("{}: not found", cmd); },
+				"STACK" => {
+					stack_dump::stack_dump_cmd(tokens);
+				},
+				"REBOOT" => {
+					crate::reboot();
+				},
+				"SWITCH" => Self::switch_cmd(tokens.next()),
+				"CLEAR" => {
+					crate::clear_screen();
+				},
+				_ => {
+					pr_error!("{}: not found", cmd);
+				},
 			}
 		}
 	}
@@ -125,14 +133,15 @@ impl ShellBuf {
 		self.flush_buffer();
 		self.update_cursor();
 	}
-
 }
 
-pub static mut SHELL_INPUT: ShellBuf = ShellBuf{buf: [0; VGA_WIDTH], len: 0, cursor_pos: 0};
+pub static mut SHELL_INPUT: ShellBuf = ShellBuf { buf: [0; VGA_WIDTH], len: 0, cursor_pos: 0 };
 
 pub fn init_shell() {
 	// Fill buffer with color
-	unsafe { clear_buffer(); }
+	unsafe {
+		clear_buffer();
+	}
 
 	// Enable cursor, is 2 scanlines tall (between scanlines 14 and 15 of character)
 	io::outb(0x3D4, 0x0A);

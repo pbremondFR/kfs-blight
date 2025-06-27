@@ -5,7 +5,7 @@ pub struct FixedString<const N: usize> {
 
 impl<const N: usize> FixedString<N> {
 	pub fn new() -> Self {
-		Self{ buf: [0; N], size: 0 }
+		Self { buf: [0; N], size: 0 }
 	}
 
 	pub fn len(&self) -> usize {

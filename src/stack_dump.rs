@@ -1,14 +1,18 @@
 use crate::screen::printk;
 use crate::screen::LogLevel;
 use crate::screen::VGA_WIDTH;
-use core::slice::from_raw_parts;
 use core::arch::asm;
 use core::fmt::*;
+use core::slice::from_raw_parts;
 
 // 00000000  23 20 42 4c 49 47 48 54  20 62 79 20 4a 6f 6c 61  |# BLIGHT by Jola|
 
 fn get_ascii_representation(c: u8) -> char {
-	if c >= 32 && c <= 126 { c.into() } else { '.' }
+	if c >= 32 && c <= 126 {
+		c.into()
+	} else {
+		'.'
+	}
 }
 
 fn dump_slice(slice: &[u8], count: usize) {
@@ -41,7 +45,7 @@ pub extern "C" fn dump_address(size_to_dump: usize, ptr: usize) {
 	}
 	let mut count = 0;
 	while count < size_to_dump {
-		let end = size_to_dump.min(count+16);
+		let end = size_to_dump.min(count + 16);
 		let subslice = &slice[count..end];
 		dump_slice(subslice, count + ptr);
 		count += subslice.len();

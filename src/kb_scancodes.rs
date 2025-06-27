@@ -100,33 +100,45 @@ pub fn on_ps2_kb_input() {
 	let code = io::inb(0x60);
 	let char: Option<u8> = match SCANCODES_CHARS[code as usize] {
 		b'.' => None,
-		_ => Some(SCANCODES_CHARS[code as usize])
+		_ => Some(SCANCODES_CHARS[code as usize]),
 	};
 	if let Some(char) = char {
-		unsafe { microshell::push_shell_char(char); }
-	} else if code == BACKSPACE{
-		unsafe { microshell::pop_shell_char(); }
+		unsafe {
+			microshell::push_shell_char(char);
+		}
+	} else if code == BACKSPACE {
+		unsafe {
+			microshell::pop_shell_char();
+		}
 	} else if code == ENTER {
-		unsafe { microshell::enter_cmd(); }
+		unsafe {
+			microshell::enter_cmd();
+		}
 	} else if code == ESCAPE {
-		unsafe { microshell::clear_buffer(); }
-	} else if code >= F1  && code <= F4 {
+		unsafe {
+			microshell::clear_buffer();
+		}
+	} else if code >= F1 && code <= F4 {
 		switch((code - F1) as usize);
 	} else if code == ESCAPE {
-        unsafe {
-            microshell::clear_buffer();
-        }
-    } else if code >= F1 && code <= F4 {
-        switch((code - F1) as usize);
-    } else if code == UP_ARROW {
-        scroll_up();
-    } else if code == DOWN_ARROW {
-        scroll_down();
+		unsafe {
+			microshell::clear_buffer();
+		}
+	} else if code >= F1 && code <= F4 {
+		switch((code - F1) as usize);
+	} else if code == UP_ARROW {
+		scroll_up();
+	} else if code == DOWN_ARROW {
+		scroll_down();
 	} else if code == LEFT_ARROW {
-		unsafe { microshell::shift_cursor(-1); }
+		unsafe {
+			microshell::shift_cursor(-1);
+		}
 	} else if code == RIGHT_ARROW {
-		unsafe { microshell::shift_cursor(1); }
-    } else {
-        return;
-    }
+		unsafe {
+			microshell::shift_cursor(1);
+		}
+	} else {
+		return;
+	}
 }
