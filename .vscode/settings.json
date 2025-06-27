@@ -7,5 +7,6 @@
     "makefile.configureOnOpen": false,
     "rust-analyzer.completion.hideDeprecated": false,
     "rust-analyzer.completion.termSearch.fuel": 5000,
-    "rust-analyzer.completion.fullFunctionSignatures.enable": true
+    "rust-analyzer.completion.fullFunctionSignatures.enable": true,
+    "editor.formatOnSave": true
 }
