@@ -1,9 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
-        "rust-project.json",
-        "Cargo.toml",
+        "./Cargo.toml",
     ],
     "rust-analyzer.cargo.allTargets": false,
+    "rust-analyzer.cargo.target": "./i386-kfs.json",
     "makefile.configureOnOpen": false,
     "rust-analyzer.completion.hideDeprecated": false,
     "rust-analyzer.completion.termSearch.fuel": 5000,
