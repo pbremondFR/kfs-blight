@@ -101,8 +101,21 @@ pub fn printk(level: LogLevel, fmt: fmt::Arguments) -> fmt::Result {
 	}
 }
 
+pub fn switch_cmd(arg: Option<&str>) {
+	match arg {
+		Some(a) => match a.parse::<usize>() {
+			Ok(active) => switch(active),
+			Err(e) => {
+				pr_error!("SWITCH: unable to parse {}, {}", a, e);
+			},
+		},
+		None => {
+			pr_error!("SWITCH: must provide an argument [0,1,2,3]");
+		},
+	}
+}
+
 #[allow(static_mut_refs)]
-#[allow(unused_must_use)]
 pub fn switch(active: usize) {
 	unsafe {
 		SCREEN.switch_active(active);
@@ -110,7 +123,6 @@ pub fn switch(active: usize) {
 }
 
 #[allow(static_mut_refs)]
-#[allow(unused_must_use)]
 pub fn scroll_up() {
 	unsafe {
 		SCREEN.scroll_up();
@@ -118,7 +130,6 @@ pub fn scroll_up() {
 }
 
 #[allow(static_mut_refs)]
-#[allow(unused_must_use)]
 pub fn scroll_down() {
 	unsafe {
 		SCREEN.scroll_down();
@@ -126,7 +137,6 @@ pub fn scroll_down() {
 }
 
 #[allow(static_mut_refs)]
-#[allow(unused_must_use)]
 pub fn clear_screen() {
 	unsafe {
 		SCREEN.clear_screen();
