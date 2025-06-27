@@ -129,6 +129,14 @@ pub fn scroll_down() {
     }
 }
 
+#[allow(static_mut_refs)]
+#[allow(unused_must_use)]
+pub fn clear_screen() {
+    unsafe {
+        SCREEN.clear_screen();
+    }
+}
+
 impl Screen {
     pub fn new() -> Self {
         Screen {
@@ -178,8 +186,8 @@ impl Screen {
     pub fn scroll_down(&mut self) {
         let vga_buffer = VGA_BUFFER as *mut u8;
         self.offset[self.active] = self.offset[self.active].saturating_add(VGA_WIDTH * 2);
-        if self.offset[self.active] > (self.line[self.active] - 1) * VGA_WIDTH * 2 {
-            self.offset[self.active] = (self.line[self.active] - 1) * VGA_WIDTH * 2;
+        if self.offset[self.active] > ((self.line[self.active] - 1) * VGA_WIDTH * 2).saturating_sub(VGA_WIDTH * 2 * (VGA_HEIGHT - 1)) {
+            self.offset[self.active] = ((self.line[self.active] - 1) * VGA_WIDTH * 2).saturating_sub(VGA_WIDTH * 2 * (VGA_HEIGHT - 1));
         }
         if self.offset[self.active] > SCREEN_BUFFER_SIZE - VGA_BUFFER_SIZE {
             self.offset[self.active] = SCREEN_BUFFER_SIZE - VGA_BUFFER_SIZE;
@@ -189,6 +197,19 @@ impl Screen {
         unsafe {
             volatile_copy_nonoverlapping_memory(vga_buffer, slice.as_ptr(), VGA_BUFFER_SIZE);
         }
+    }
+
+    pub fn clear_screen(&mut self) {
+        let vga_buffer = VGA_BUFFER as *mut u8;
+        self.buf[self.active].fill(0);
+        self.line[self.active] = 0;
+        self.offset[self.active] = 0;
+        self.pos[self.active] = 0;
+        let slice = &self.buf[self.active][0..VGA_BUFFER_SIZE];
+        unsafe {
+            volatile_copy_nonoverlapping_memory(vga_buffer, slice.as_ptr(), VGA_BUFFER_SIZE);
+        }
+        
     }
 
     pub fn push_up(&mut self) {

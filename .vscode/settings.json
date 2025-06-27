@@ -4,5 +4,8 @@
         "Cargo.toml",
     ],
     "rust-analyzer.cargo.allTargets": false,
-    "makefile.configureOnOpen": false
+    "makefile.configureOnOpen": false,
+    "rust-analyzer.completion.hideDeprecated": false,
+    "rust-analyzer.completion.termSearch.fuel": 5000,
+    "rust-analyzer.completion.fullFunctionSignatures.enable": true
 }

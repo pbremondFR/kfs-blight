@@ -103,6 +103,7 @@ impl ShellBuf {
 				"STACK" => { stack_dump::stack_dump_cmd(tokens); },
 				"REBOOT" => { crate::reboot(); }
 				"SWITCH" => { Self::switch_cmd(tokens.next()) }
+				"CLEAR" => { crate::clear_screen(); }
 				_ => { pr_error!("{}: not found", cmd); },
 			}
 		}
