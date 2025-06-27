@@ -6,7 +6,7 @@
 #![feature(core_io_borrowed_buf)]
 
 use core::panic::PanicInfo;
-// use core::arch::asm;
+use core::arch::asm;
 
 #[macro_use]
 mod screen;
@@ -44,18 +44,18 @@ const LOGO_42: &str = r#"              @@@@@@@@     @@@@@@@ @@@@@@@@
 
 #[no_mangle]
 pub extern "C" fn kmain() -> ! {
-    // let test_stack: [u8; 8] = [b'H', b'e', b'l', b'l', b'o', b' ', b'm', b'8'];
+    let test_stack: [u8; 8] = [b'H', b'e', b'l', b'l', b'o', b' ', b'm', b'8'];
     // Setup GDT
-    // unsafe {
-    //     gdt::write_gdt_entry(0, 0, 0, 0);
-    //     gdt::write_gdt_entry(1, 0xffff, gdt::GDT_ACCESS_CODE_PL0, gdt::GDT_SEG_GRANULAR_FLAGS);
-    //     gdt::write_gdt_entry(2, 0xffff, gdt::GDT_ACCESS_DATA_PL0, gdt::GDT_SEG_GRANULAR_FLAGS);
-    //     gdt::write_gdt_entry(3, 0xffff, gdt::GDT_ACCESS_STACK_PL0, gdt::GDT_SEG_GRANULAR_FLAGS);
-    //     gdt::write_gdt_entry(4, 0xffff, gdt::GDT_ACCESS_CODE_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
-    //     gdt::write_gdt_entry(5, 0xffff, gdt::GDT_ACCESS_DATA_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
-    //     gdt::write_gdt_entry(6, 0xffff, gdt::GDT_ACCESS_STACK_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
-    //     gdt::reload_gdt(7);
-    // }
+    unsafe {
+        gdt::write_gdt_entry(0, 0, 0, 0);
+        gdt::write_gdt_entry(1, 0xffff, gdt::GDT_ACCESS_CODE_PL0, gdt::GDT_SEG_GRANULAR_FLAGS);
+        gdt::write_gdt_entry(2, 0xffff, gdt::GDT_ACCESS_DATA_PL0, gdt::GDT_SEG_GRANULAR_FLAGS);
+        gdt::write_gdt_entry(3, 0xffff, gdt::GDT_ACCESS_STACK_PL0, gdt::GDT_SEG_GRANULAR_FLAGS);
+        gdt::write_gdt_entry(4, 0xffff, gdt::GDT_ACCESS_CODE_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
+        gdt::write_gdt_entry(5, 0xffff, gdt::GDT_ACCESS_DATA_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
+        gdt::write_gdt_entry(6, 0xffff, gdt::GDT_ACCESS_STACK_PL3, gdt::GDT_SEG_GRANULAR_FLAGS);
+        gdt::reload_gdt(7);
+    }
     microshell::init_shell();
 
     for line in LOGO_42.split('\n') {
@@ -67,19 +67,19 @@ pub extern "C" fn kmain() -> ! {
         pr_warn!("WARN MESSAGE {}!", i);
         printkln!(LogLevel::Error, "ERROR MESSAGE {}!", i);
     }
-    // pr_debug!("Address of test string: 0x{:08x}", &raw const test_stack as u32);
-    // stack_dump::stack_dump(128);
+    pr_debug!("Address of test string: 0x{:08x}", &raw const test_stack as u32);
+    stack_dump::stack_dump(128);
 
-    // let mut ebp: usize;
-    // let mut esp: usize;
-    // unsafe {
-    //     asm!("mov {:e}, ebp", out(reg) ebp);
-    //     asm!("mov {:e}, esp", out(reg) esp);
-    // }
-    // pr_debug!("esp: 0x{:08x}, ebp: 0x{:08x}", esp, ebp);
-    // for align in [4, 8, 16] {
-    //     pr_debug!("{:2} bytes alignment: ESP={:5}, EBP={:5}", align, esp % align == 0, ebp % align == 0);
-    // }
+    let mut ebp: usize;
+    let mut esp: usize;
+    unsafe {
+        asm!("mov {:e}, ebp", out(reg) ebp);
+        asm!("mov {:e}, esp", out(reg) esp);
+    }
+    pr_debug!("esp: 0x{:08x}, ebp: 0x{:08x}", esp, ebp);
+    for align in [4, 8, 16] {
+        pr_debug!("{:2} bytes alignment: ESP={:5}, EBP={:5}", align, esp % align == 0, ebp % align == 0);
+    }
 
     loop {
         let ps2_status = io::inb(0x64);
